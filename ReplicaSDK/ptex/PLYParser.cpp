@@ -2,10 +2,15 @@
 #include "PLYParser.h"
 #include "Assert.h"
 
+#ifndef WIN32
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <experimental/filesystem>
+#else
+#include <filesystem>
+#endif
+#include "FileMemMap.h"
 #include <fstream>
 #include <set>
 
@@ -224,12 +229,11 @@ void PLYParse(MeshData& meshData, const std::string& filename) {
 
   file.close();
 
-  const size_t fileSize = std::experimental::filesystem::file_size(filename);
+  const size_t fileSize = std::filesystem::file_size(filename);
 
-  int fd = open(filename.c_str(), O_RDONLY, 0);
-  void* mmappedData = mmap(NULL, fileSize, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0);
-
-  // Parse each vertex packet and unpack
+  FileMemMap filemap;
+  void* mmappedData = filemap.mapfile(filename);
+ // Parse each vertex packet and unpack
   char* bytes = &(((char*)mmappedData)[postHeader]);
 
   for (size_t i = 0; i < numVertices; i++) {
@@ -286,7 +290,5 @@ void PLYParse(MeshData& meshData, const std::string& filename) {
     meshData.polygonStride = 0;
   }
 
-  munmap(mmappedData, fileSize);
-
-  close(fd);
+  filemap.release();
 }

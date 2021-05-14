@@ -2,6 +2,8 @@
 #include "EGL.h"
 #include "Assert.h"
 
+#ifndef WIN32
+
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <GL/glew.h>
@@ -269,3 +271,10 @@ void EGLCtx::PrintInformation() {
     std::cout << std::endl;
   }
 }
+
+
+#else
+
+
+
+#endif

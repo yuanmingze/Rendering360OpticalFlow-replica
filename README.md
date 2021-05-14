@@ -1,3 +1,16 @@
+# New Features
+
+Features:
+- sort_linux.dll: Wrap of GCC sort function, to correct the texture; 
+
+
+Test on:
+- Windows 10
+- Visual Stuido 2019
+- GLEW: 2.1.0
+- Pangolin: v0.6
+- Eigen: Eigen-3.3.7
+
 # Replica Dataset
 
 The Replica Dataset is a dataset of high quality reconstructions of a

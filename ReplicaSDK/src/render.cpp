@@ -1,5 +1,5 @@
 // Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
-#include <EGL.h>
+//#include <EGL.h>
 #include <PTexLib.h>
 #include <pangolin/image/image_convert.h>
 
@@ -27,10 +27,17 @@ int main(int argc, char* argv[]) {
   float depthScale = 65535.0f * 0.1f;
 
   // Setup EGL
-  EGLCtx egl;
+  //EGLCtx egl;
+  //egl.PrintInformation();
 
-  egl.PrintInformation();
-  
+  // Setup OpenGL Display (based on GLUT)
+  pangolin::CreateWindowAndBind("ReplicaViewer", width, height);
+  if (glewInit() != GLEW_OK) {
+      pango_print_error("Unable to initialize GLEW.");
+  }
+  if (!checkGLVersion()) {
+      return 1;
+  }
   if(!checkGLVersion()) {
     return 1;
   }

@@ -6,10 +6,19 @@
 #include <pangolin/utils/picojson.h>
 #include <Eigen/Geometry>
 
+#ifndef WIN32
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <experimental/filesystem>
+#else
+#include <iostream>
+#include <filesystem>
+#include <sort_linux.hpp>
+#endif
+
+#include "FileMemMap.h"
+
 #include <fstream>
 #include <unordered_map>
 
@@ -250,7 +259,7 @@ std::vector<MeshData> PTexMesh::SplitMesh(const MeshData& mesh, const float spli
 
 // calculate vertex grid position and code
 #pragma omp parallel for
-  for (size_t i = 0; i < mesh.vbo.size(); i++) {
+  for (int i = 0; i < mesh.vbo.size(); i++) {
     const Eigen::Vector3f p = mesh.vbo[i].head<3>();
     Eigen::Vector3f pi = (p - boundingBox.min()) / splitSize;
     verts[i] = EncodeMorton3(pi.cast<int>());
@@ -269,7 +278,7 @@ std::vector<MeshData> PTexMesh::SplitMesh(const MeshData& mesh, const float spli
   faces.resize(numFaces);
 
 #pragma omp parallel for
-  for (size_t i = 0; i < numFaces; i++) {
+  for (int i = 0; i < numFaces; i++) {
     faces[i].originalFace = i;
     faces[i].code = std::numeric_limits<uint32_t>::max();
     for (int j = 0; j < 4; j++) {
@@ -280,10 +289,82 @@ std::vector<MeshData> PTexMesh::SplitMesh(const MeshData& mesh, const float spli
     }
   }
 
-  // sort faces by code
-  std::sort(faces.begin(), faces.end(), [](const SortFace& f1, const SortFace& f2) -> bool {
-    return (f1.code < f2.code);
-  });
+  //// sort faces by code
+  //std::sort(faces.begin(), faces.end(), [](const SortFace& f1, const SortFace& f2) -> bool {
+  //    return (f1.code < f2.code);
+  //    });
+
+  auto sort_face = [](std::vector<SortFace>& sort_face_list)
+  {
+      const int index_ele_size = 4;
+      unsigned int* index_data_ptr = (unsigned int*)malloc(sizeof(unsigned int) * sort_face_list.size() * index_ele_size);
+      unsigned int* code_ptr = (unsigned int*)malloc(sizeof(unsigned int) * sort_face_list.size());
+      unsigned long long* originalFace_ptr = (unsigned long long*)malloc(sizeof(unsigned long long) * sort_face_list.size());
+
+      // convert to array
+      for (int i = 0; i < sort_face_list.size(); i++)
+      {
+          for (int j = 0; j < index_ele_size; j++)
+              index_data_ptr[i * index_ele_size + j] = sort_face_list[i].index[j];
+          code_ptr[i] = sort_face_list[i].code;
+          originalFace_ptr[i] = sort_face_list[i].originalFace;
+      }
+      int face_number = sort_face_list.size();
+      sortface_linux(index_data_ptr, face_number, code_ptr, face_number, originalFace_ptr, face_number);
+      printf("%s", "linux sort function");
+
+      // update the sort_face_list
+      for (int i = 0; i < sort_face_list.size(); i++)
+      {
+          for (int j = 0; j < index_ele_size; j++)
+              sort_face_list[i].index[j] = index_data_ptr[i * index_ele_size + j];
+          sort_face_list[i].code = code_ptr[i];
+          sort_face_list[i].originalFace = originalFace_ptr[i];
+      }
+  };
+
+  sort_face(faces);
+
+  // output to file
+  //std::ofstream myfile;
+  //myfile.open("d:/faces_info_win32.txt");
+  //for (SortFace& sf : faces)
+  //{
+  //    myfile << sf.code << "\t" <<
+  //        sf.index[0] << "\t" <<
+  //        sf.index[1] << "\t" <<
+  //        sf.index[2] << "\t" <<
+  //        sf.index[3] << "\t" <<
+  //        sf.originalFace << "\n";
+  //}
+  //myfile.close();
+  //printf("face output finished !!!");
+
+  //// load data from files
+  //std::ifstream infile("d:/faces_info_cygwin.txt");
+
+  //uint32_t code_;
+  //uint32_t index_0, index_1, index_2, index_3;
+  //size_t originalFace_;
+
+  //int counter = 0;
+  //while (infile >> code_ >> index_0 >> index_1 >> index_2 >> index_3 >> originalFace_)
+  //{
+  //    // successfully extracted one line, data is in x1, ..., x4, c.
+  //    SortFace sf;
+  //    faces[counter].code = code_;
+  //    faces[counter].index[0] = index_0;
+  //    faces[counter].index[1] = index_1;
+  //    faces[counter].index[2] = index_2;
+  //    faces[counter].index[3] = index_3;
+  //    faces[counter].originalFace = originalFace_;
+  //    //faces[counter] = (sf);
+  //    counter++;
+  //    if (counter % 1000 == 0 )
+  //        printf("%d\n", counter);
+  //}
+  //infile.close();
+
 
   // find face chunk start indices
   std::vector<uint32_t> chunkStart;
@@ -314,7 +395,7 @@ std::vector<MeshData> PTexMesh::SplitMesh(const MeshData& mesh, const float spli
   }
 
 #pragma omp parallel for
-  for (size_t i = 0; i < numChunks; i++) {
+  for (int i = 0; i < numChunks; i++) {
     uint32_t chunkSize = chunkStart[i + 1] - chunkStart[i];
 
     std::vector<uint32_t> refdVerts;
@@ -480,7 +561,7 @@ void PTexMesh::LoadMeshData(const std::string& meshFile) {
   std::vector<std::vector<uint32_t>> adjFaces(splitMeshData.size());
 
 #pragma omp parallel for
-  for (size_t i = 0; i < splitMeshData.size(); i++) {
+  for (int i = 0; i < splitMeshData.size(); i++) {
     CalculateAdjacency(splitMeshData[i], adjFaces[i]);
   }
 
@@ -501,7 +582,7 @@ void PTexMesh::LoadAtlasData(const std::string& atlasFolder) {
     const std::string hdrFile = atlasFolder + "/" + std::to_string(i) + "-color-ptex.hdr";
 
     if (pangolin::FileExists(dxtFile)) {
-      const size_t numBytes = std::experimental::filesystem::file_size(dxtFile);
+      const size_t numBytes = std::filesystem::file_size(dxtFile);
 
       // We know it's square
       const size_t dim = std::sqrt(numBytes * 2);
@@ -509,14 +590,14 @@ void PTexMesh::LoadAtlasData(const std::string& atlasFolder) {
       meshes[i]->atlas.Reinitialise(
           dim, dim, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT, false, 0, GL_RGBA, GL_UNSIGNED_BYTE);
     } else if (pangolin::FileExists(rgbFile)) {
-      const size_t numBytes = std::experimental::filesystem::file_size(rgbFile);
+      const size_t numBytes = std::filesystem::file_size(rgbFile);
 
       // We know it's square
       const size_t dim = std::sqrt(numBytes / 3);
 
       meshes[i]->atlas.Reinitialise(dim, dim, GL_RGBA8, true, 0, GL_RGB, GL_UNSIGNED_BYTE);
     } else if (pangolin::FileExists(hdrFile)) {
-      const size_t numBytes = std::experimental::filesystem::file_size(hdrFile);
+      const size_t numBytes = std::filesystem::file_size(hdrFile);
 
       // We know it's square
       const size_t dim = std::sqrt(numBytes / 6);
@@ -536,11 +617,11 @@ void PTexMesh::LoadAtlasData(const std::string& atlasFolder) {
     const std::string hdrFile = atlasFolder + "/" + std::to_string(i) + "-color-ptex.hdr";
 
     if (pangolin::FileExists(dxtFile)) {
-      const size_t numBytes = std::experimental::filesystem::file_size(dxtFile);
+      const size_t numBytes = std::filesystem::file_size(dxtFile);
 
       // Open file
-      int fd = open(std::string(dxtFile).c_str(), O_RDONLY, 0);
-      void* mmappedData = mmap(NULL, numBytes, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0);
+      FileMemMap fileMap;
+      void* mmappedData = fileMap.mapfile(std::string(dxtFile));
 
       meshes[i]->atlas.Bind();
       glCompressedTexSubImage2D(
@@ -555,30 +636,27 @@ void PTexMesh::LoadAtlasData(const std::string& atlasFolder) {
           mmappedData);
       CheckGlDieOnError();
 
-      munmap(mmappedData, numBytes);
-      close(fd);
+      fileMap.release();
     } else if (pangolin::FileExists(rgbFile)) {
-      const size_t numBytes = std::experimental::filesystem::file_size(rgbFile);
+      const size_t numBytes = std::filesystem::file_size(rgbFile);
 
       // Open file
-      int fd = open(std::string(rgbFile).c_str(), O_RDONLY, 0);
-      void* mmappedData = mmap(NULL, numBytes, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0);
+      FileMemMap fileMap;
+      void* mmappedData = fileMap.mapfile(std::string(rgbFile));
 
       meshes[i]->atlas.Upload(mmappedData, GL_RGB, GL_UNSIGNED_BYTE);
 
-      munmap(mmappedData, numBytes);
-      close(fd);
+      fileMap.release();
     } else if (pangolin::FileExists(hdrFile)) {
-      const size_t numBytes = std::experimental::filesystem::file_size(hdrFile);
+      const size_t numBytes = std::filesystem::file_size(hdrFile);
 
       // Open file
-      int fd = open(std::string(hdrFile).c_str(), O_RDONLY, 0);
-      void* mmappedData = mmap(NULL, numBytes, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0);
+      FileMemMap fileMap;
+      void* mmappedData = fileMap.mapfile(std::string(hdrFile));
 
       meshes[i]->atlas.Upload(mmappedData, GL_RGB, GL_HALF_FLOAT);
 
-      munmap(mmappedData, numBytes);
-      close(fd);
+      fileMap.release();
     } else {
       ASSERT(false, "Can't parse texture filename " + atlasFolder + "/" + std::to_string(i));
     }
