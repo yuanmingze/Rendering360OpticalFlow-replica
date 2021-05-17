@@ -1,5 +1,6 @@
 build_msvc
 build_visual_code
 build
+.vscode
 *~
 *.swp

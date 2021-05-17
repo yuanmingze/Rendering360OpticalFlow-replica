@@ -53,7 +53,7 @@ LIST(APPEND RUNTIMT_ENV_PATH_LIST "D:/libraries_windows/glog/glog_with_gflags-0.
 LIST(APPEND RUNTIMT_ENV_PATH_LIST "D:/libraries_windows/glog/glog_with_gflags-0.4.0-msvc14.0-x64-dll/glog-0.4.0-bin/bin/")
 LIST(APPEND RUNTIMT_ENV_PATH_LIST "D:/libraries_windows/glew/glew-2.1.0-bin/bin/")
 LIST(APPEND RUNTIMT_ENV_PATH_LIST "D:/libraries_windows/Pangolin/Pangolin-bin/bin")
-LIST(APPEND RUNTIMT_ENV_PATH_LIST "D:/workspace_windows/replica/Replica-Dataset/3rdparty/linux_sort_dll/")
+LIST(APPEND RUNTIMT_ENV_PATH_LIST "D:/workspace_windows/replica/Replica-Dataset_360/3rdparty/linux_sort_dll/")
 string(JOIN ";" RUNTIMT_ENV_PATH_STR ${RUNTIMT_ENV_PATH_LIST})
 #string(CONCAT ";" RUNTIMT_ENV_PATH_STR ${RUNTIMT_ENV_PATH_LIST})
 set(RUNTIMT_ENV_PATH ${RUNTIMT_ENV_PATH_STR} CACHE STRING "vs runtime env" FORCE)
@@ -71,6 +71,8 @@ MESSAGE(STATUS "DEBUG: RUNTIMT_ENV_PATH_STR=${RUNTIMT_ENV_PATH}")
 find_package(Eigen3 REQUIRED)
 find_package(glew REQUIRED)
 find_package(Pangolin REQUIRED)
+find_package(gflags REQUIRED)
+find_package(glog REQUIRED)
 
 # Pangolin's dependencies
 set(ZLIB_INCLUDE_DIR "D:/libraries_windows/Pangolin/Pangolin-bin/include")
@@ -84,8 +86,8 @@ set(JPEG_LIBRARY  "D:/libraries_windows/Pangolin/Pangolin-bin/lib/jpeg.lib")
 set(Pangolin_INCLUDE_DIRS "D:/libraries_windows/Pangolin/Pangolin-bin/include")
 set(Pangolin_LIBRARIES "D:/libraries_windows/Pangolin/Pangolin-bin/lib/pangolin.lib")
 
-set(SortLinux_INCLUDE_DIR "D:/workspace_windows/replica/Replica-Dataset/3rdparty/linux_sort_dll/")
-set(SortLinux_LIBRARIES "D:/workspace_windows/replica/Replica-Dataset/3rdparty/linux_sort_dll/sort_linux.lib")
+set(SortLinux_INCLUDE_DIR "D:/workspace_windows/replica/Replica-Dataset_360/3rdparty/linux_sort_dll/")
+set(SortLinux_LIBRARIES "D:/workspace_windows/replica/Replica-Dataset_360/3rdparty/linux_sort_dll/sort_linux.lib")
 
 add_subdirectory("./ReplicaSDK")
 

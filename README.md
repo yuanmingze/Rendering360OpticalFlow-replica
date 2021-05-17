@@ -1,15 +1,44 @@
 # New Features
 
 Features:
-- sort_linux.dll: Wrap of GCC sort function, to correct the texture; 
-
+- [x] Correct the texture loading error caused by std::sort in windows. Wrap GCC std::sort to sort_linux.dll;
+- [ ] Parse input parameters by GFlags;
+- [ ] CubeMap Optical Flow output;
+  - [ ] Render 2D motion flow;
+- [ ] Panoramic RGB images;
+  - [ ] PTexlib
+  - [ ] gflags parse arguments
+- [ ] Panoramic Depth images;
+- [ ] Panoramic Optical Flow output;
+- [ ] Render Path Loader c++;
 
 Test on:
 - Windows 10
 - Visual Stuido 2019
 - GLEW: 2.1.0
-- Pangolin: v0.6
-- Eigen: Eigen-3.3.7
+- Pangolin: 0.6
+- Eigen: 3.3.7
+- Glog: 2.2.2
+- Gflag: 0.4.0
+
+
+**Replica Coordinate System**:
+
+<p align="center">
+<img src="./assets/coord_hotel.png" align=middle alt="method_pipeline_0" style="width:600px;"/>
+<figcaption>Replica Hotel coordinate system.</figcaption>
+</p>
+
+**Panoramic Image Coordinate System**:
+
+<p align="center">
+<img src="./assets/coordinate_system.svg" align=middle alt="method_pipeline_0" style="width:800px;"/>
+<figcaption>The transformation between coordinate systems.</figcaption>
+</p>
+
+## How To Use
+
+**Camera**
 
 # Replica Dataset
 

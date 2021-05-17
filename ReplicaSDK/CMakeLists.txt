@@ -41,19 +41,40 @@ target_include_directories(ptex PUBLIC
             GL
 )
 
-#######   ReplicaRenderer   #######
-add_executable(ReplicaViewer src/viewer.cpp src/MirrorSurface.cpp)
-
+#######   ReplicaViewer   #######
+add_executable(ReplicaViewer src/viewer.cpp )
+set_target_properties(ReplicaViewer PROPERTIES VS_DEBUGGER_ENVIRONMENT "${RUNTIMT_ENV_PATH}")
 target_link_libraries(ReplicaViewer PUBLIC
                       ${Pangolin_LIBRARIES}
                       ptex
 )
 
 #######   ReplicaRenderer   #######
-add_executable(ReplicaRenderer src/render.cpp src/MirrorSurface.cpp)
-
+add_executable(ReplicaRenderer src/render.cpp)
+set_target_properties(ReplicaRenderer PROPERTIES VS_DEBUGGER_ENVIRONMENT "${RUNTIMT_ENV_PATH}")
 target_link_libraries(ReplicaRenderer PUBLIC
                       ${Pangolin_LIBRARIES}
+                      gflags
+                      glog::glog
                       ptex
 )
 
+#######   ReplicaRendererCubemap   #######
+add_executable(ReplicaRendererCubemap src/renderCubemap.cpp)
+set_target_properties(ReplicaRendererCubemap PROPERTIES VS_DEBUGGER_ENVIRONMENT "${RUNTIMT_ENV_PATH}")
+target_link_libraries(ReplicaRendererCubemap PUBLIC
+                      ${Pangolin_LIBRARIES}
+                      gflags
+                      glog::glog
+                      ptex
+)
+
+#######   ReplicaRendererPanorama   #######
+add_executable(ReplicaRendererPanorama src/renderPanorama.cpp)
+set_target_properties(ReplicaRendererPanorama PROPERTIES VS_DEBUGGER_ENVIRONMENT "${RUNTIMT_ENV_PATH}")
+target_link_libraries(ReplicaRendererPanorama PUBLIC
+                      ${Pangolin_LIBRARIES}
+                      gflags
+                      glog::glog
+                      ptex
+)

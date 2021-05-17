@@ -14,7 +14,7 @@
 
 class PTexMesh {
  public:
-  PTexMesh(const std::string& meshFile, const std::string& atlasFolder);
+  PTexMesh(const std::string& meshFile, const std::string& atlasFolder, const bool panoramic_enable=false);
 
   virtual ~PTexMesh();
 
@@ -29,6 +29,14 @@ class PTexMesh {
       const float depthScale,
       const Eigen::Vector4f& clipPlane);
 
+  void RenderSubMeshMotionVector(
+      size_t subMesh,
+      const pangolin::OpenGlRenderState& cam_currnet, 
+      const pangolin::OpenGlRenderState& cam_next,
+      const int image_width,
+      const int image_height,
+      const Eigen::Vector4f& clipPlane);
+
   void Render(
       const pangolin::OpenGlRenderState& cam,
       const Eigen::Vector4f& clipPlane = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f));
@@ -40,6 +48,13 @@ class PTexMesh {
   void RenderDepth(
     const pangolin::OpenGlRenderState& cam,
     const float depthScale=1.0f,
+    const Eigen::Vector4f& clipPlane = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f));
+
+  void RenderMotionVector(
+    const pangolin::OpenGlRenderState& cam,
+    const pangolin::OpenGlRenderState& cam_pre,
+    const int image_width,
+    const int image_height,
     const Eigen::Vector4f& clipPlane = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f));
 
   float Exposure() const;
@@ -74,6 +89,7 @@ class PTexMesh {
 
   pangolin::GlSlProgram shader;
   pangolin::GlSlProgram depthShader;
+  pangolin::GlSlProgram motionVectorShader;
 
   float exposure = 1.0f;
   float gamma = 1.0f;

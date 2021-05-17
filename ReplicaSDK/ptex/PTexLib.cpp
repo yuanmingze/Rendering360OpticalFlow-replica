@@ -22,7 +22,7 @@
 #include <fstream>
 #include <unordered_map>
 
-PTexMesh::PTexMesh(const std::string& meshFile, const std::string& atlasFolder) {
+PTexMesh::PTexMesh(const std::string& meshFile, const std::string& atlasFolder, const bool panoramic_enable) {
   // Check everything exists
   ASSERT(pangolin::FileExists(meshFile));
   ASSERT(pangolin::FileExists(atlasFolder));
@@ -64,6 +64,11 @@ PTexMesh::PTexMesh(const std::string& meshFile, const std::string& atlasFolder) 
   depthShader.AddShaderFromFile(pangolin::GlSlVertexShader, shadir + "/mesh-depth.vert", {}, {shadir});
   depthShader.AddShaderFromFile(pangolin::GlSlFragmentShader, shadir + "/mesh-depth.frag", {}, {shadir});
   depthShader.Link();
+
+  motionVectorShader.AddShaderFromFile(pangolin::GlSlVertexShader, shadir + "/mesh-motionflow.vert", {}, {shadir});
+  motionVectorShader.AddShaderFromFile(pangolin::GlSlGeometryShader, shadir + "/mesh-motionflow.geom", {}, {shadir});
+  motionVectorShader.AddShaderFromFile(pangolin::GlSlFragmentShader, shadir + "/mesh-motionflow.frag", {}, {shadir});
+  motionVectorShader.Link();
 }
 
 PTexMesh::~PTexMesh() {}
@@ -170,6 +175,45 @@ void PTexMesh::RenderSubMeshDepth(
 }
 
 
+void PTexMesh::RenderSubMeshMotionVector(
+    size_t subMesh,
+    const pangolin::OpenGlRenderState& cam_currnet,
+    const pangolin::OpenGlRenderState& cam_next,
+    const int image_width,
+    const int image_height,
+    const Eigen::Vector4f& clipPlane) {
+
+    ASSERT(subMesh < meshes.size());
+    Mesh& mesh = *meshes[subMesh];
+
+  // int currFrontFace;
+  // glGetIntegerv(GL_FRONT_FACE, &currFrontFace);
+  // //Drawing the faces has the opposite winding order to the GL_LINES_ADJACENCY
+  // glFrontFace(currFrontFace == GL_CW ? GL_CCW : GL_CW);
+  // glPushAttrib(GL_POLYGON_BIT);
+
+    motionVectorShader.Bind();
+
+    motionVectorShader.SetUniform("MVP_current", cam_currnet.GetProjectionModelViewMatrix());
+    motionVectorShader.SetUniform("MVP_next", cam_next.GetProjectionModelViewMatrix());
+    motionVectorShader.SetUniform("window_size",(float)image_width, (float)image_height);
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mesh.abo.bo);
+    mesh.vbo.Bind();
+    glVertexAttribPointer(0, mesh.vbo.count_per_element, mesh.vbo.datatype, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    mesh.vbo.Unbind();
+
+    mesh.ibo.Bind();
+    // using GL_LINES_ADJACENCY here to send quads to geometry shader
+    glDrawElements(GL_LINES_ADJACENCY, mesh.ibo.num_elements, mesh.ibo.datatype, 0);
+    mesh.ibo.Unbind();
+
+    glDisableVertexAttribArray(0);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+    motionVectorShader.Unbind();
+}
+
 void PTexMesh::Render(const pangolin::OpenGlRenderState& cam, const Eigen::Vector4f& clipPlane) {
   for (size_t i = 0; i < meshes.size(); i++) {
     RenderSubMesh(i, cam, clipPlane);
@@ -179,6 +223,16 @@ void PTexMesh::Render(const pangolin::OpenGlRenderState& cam, const Eigen::Vecto
 void PTexMesh::RenderDepth(const pangolin::OpenGlRenderState& cam, const float depthScale, const Eigen::Vector4f& clipPlane) {
   for (size_t i = 0; i < meshes.size(); i++) {
     RenderSubMeshDepth(i, cam, depthScale, clipPlane);
+  }
+}
+
+void PTexMesh::RenderMotionVector(const pangolin::OpenGlRenderState& cam_currnet, 
+    const pangolin::OpenGlRenderState& cam_next,
+    const int image_width,
+    const int image_height,
+    const Eigen::Vector4f& clipPlane) {
+  for (size_t i = 0; i < meshes.size(); i++) {
+    RenderSubMeshMotionVector(i, cam_currnet, cam_next, image_width, image_height, clipPlane);
   }
 }
 

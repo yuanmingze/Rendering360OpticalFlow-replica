@@ -1,5 +1,6 @@
 // Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 #version 430 core
+#extension GL_GOOGLE_include_directive : enable
 #include "atlas.glsl"
 
 layout(location = 0) out vec4 FragColor;
