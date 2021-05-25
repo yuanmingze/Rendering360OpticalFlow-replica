@@ -18,10 +18,9 @@ void saveDepthmap2dpt(const char *filename, const void *ptr, const int width, co
  * @param navPositions The *.csv file absolute path.
  * @param cameraMV  The camera orientation.
  */
-void loadMV(const std::string &navPositions,
-             std::vector<pangolin::OpenGlMatrix> &cameraMV);
+void loadMV(const std::string &navPositions, std::vector<pangolin::OpenGlMatrix> &cameraMV);
 
 /**
  * @brief Generate the camera pose moving along the X axis.
  */
-void generateMV(std::vector<pangolin::OpenGlMatrix> &cameraMV);
+void generateMV(std::vector<pangolin::OpenGlMatrix> &cameraMV, const unsigned int step_number = 4);

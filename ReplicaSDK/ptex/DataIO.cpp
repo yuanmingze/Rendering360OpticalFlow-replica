@@ -26,7 +26,7 @@ void saveMotionVector(const char *filename, const void *ptr, const int width, co
     flo_file.write((char *)&height, sizeof(int));
     for (int i = 0; i < width * height; i++)
     {
-      flo_file.write(static_cast<const char *>((char *)ptr + sizeof(float) * 4 * i), 2 * sizeof(float));
+      flo_file.write(static_cast<const char *>((char *)ptr + sizeof(float) * 4 * i), 2 * sizeof(float)); // output the first to channel
     }
   }
   flo_file.close();
@@ -120,18 +120,23 @@ void loadMV(const std::string &navPositions,
 }
 
 
-void generateMV(std::vector<pangolin::OpenGlMatrix> &cameraMV)
+void generateMV(std::vector<pangolin::OpenGlMatrix> &cameraMV, const unsigned int step_number)
 {
   Eigen::Matrix4d T_new_old ;
   T_new_old << 1, 0, 0, 0,
-               0, 0, 1, 0,
-               0, -1, 0, 0,
+               0, 0, -1, 0,
+               0, 1, 0, 0,
                0, 0, 0, 1;
-  T_new_old.topRightCorner(3, 1) = Eigen::Vector3d(0.025, 0, 0);
-  for (int i = 0; i < 10; i++)
+  Eigen::Matrix4d transformation_mat;
+  transformation_mat <<   1, 0, 0, 0,
+                 0, 1, 0, 0,
+                 0, 0, 1, 0,
+                 0, 0, 0, 1;
+  transformation_mat.topRightCorner(3, 1) = Eigen::Vector3d(0.025, 0, 0);
+  for (int i = 0; i < step_number; i++)
   {
     cameraMV.push_back(pangolin::OpenGlMatrix(T_new_old));
-    T_new_old = T_new_old * T_new_old.inverse();
+    T_new_old = T_new_old * transformation_mat.inverse();
   }
 }
 

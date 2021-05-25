@@ -1,9 +1,7 @@
 // Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved
 #version 430 core
-#define M_PI 3.1415926535897932384626433832795
 
 layout(location = 0) in vec4 position;
-
 uniform mat4 MVP_current;
 uniform mat4 MVP_next;
 

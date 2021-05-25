@@ -25,10 +25,9 @@ project(Replica)
 # find_package(dl REQUIRED)
 
 set (CMAKE_CXX_STANDARD 17)
-
-add_definitions(-DEIGEN_SAFE_TO_USE_STANDARD_ASSERT_MACRO)
 add_definitions(-DEIGEN_NO_DEBUG)
 
+set(CMAKE_DEBUG_POSTFIX "d" CACHE STRING "Set debug library postfix")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MD")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
 
