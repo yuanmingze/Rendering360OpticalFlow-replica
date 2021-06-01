@@ -3,11 +3,17 @@
 Features:
 - [x] Correct the texture loading error caused by std::sort in windows. Wrap GCC std::sort to sort_linux.dll;
 - [x] Parse input parameters by GFlags;
-- [x] CubeMap Optical Flow output, render perspective images motion flow;
+- [x] Render Path Loader C++;
+- [x] Perspective images motion flow;
+- [x] Render CubeMap RGB image, depth map and Optical Flow; 
+- [x] Perspective unavailable pixel mask;
 - [x] Panoramic RGB images;
 - [ ] Panoramic Depth images;
-- [ ] Panoramic Optical Flow output;
-- [ ] Render Path Loader c++;
+- [ ] Panoramic Optical Flow;
+- [ ] Panoramic Optical Flow occlusion maps;
+- [ ] Panoramic unavailable pixel mask;
+- [ ] Panoramic mirror rendering;
+- [ ] Pre-build binary on Windows 10.
 
 Test on:
 - Windows 10
@@ -18,6 +24,7 @@ Test on:
 - Glog: 2.2.2
 - Gflag: 0.4.0
 
+## Coordinate System
 
 **Replica Coordinate System**:
 
@@ -35,7 +42,27 @@ Test on:
 
 ## How To Use
 
-**Camera**
+**Camera Path**
+
+The rendering camera pose can load from camera path file, the `*.csv` camera path file composes with pose index, pose center and pose direction.
+The camera path coordinate system is same as the Replica coordinate system, and the pose direction is Euler angle.
+
+```
+# pose_index, pose_center_x, pose_center_y,  pose_center_z, pose_dir_x, pose_dir_y, pose_dir_z
+0 2.1 1.2 0.2 0.0 0.0 10.0
+1 2.1 1.2 0.2 0.0 0.0 13.0
+2 ..........
+```
+
+**Rendering Programs**
+
+The `ReplicaRendererCubemap.exe` is for render the CubeMap (perspective view) RGB image, depth map and optical flow.
+
+The `ReplicaRendererPanorama.exe` is for render the panoramic RGB image, depth map and optical flow.
+
+**Unavailable Pixels Mask**
+
+The unavailable pixels' depth map value is -10.0.
 
 # Replica Dataset
 

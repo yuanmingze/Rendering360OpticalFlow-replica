@@ -74,6 +74,7 @@ int main(int argc, char* argv[]) {
 
   // Don't draw backfaces
   glEnable(GL_DEPTH_TEST);
+  GLfloat depthClearValue[] = { -10.0 };
   const GLenum frontFace = GL_CCW;
   glFrontFace(frontFace);
 
@@ -227,26 +228,17 @@ int main(int argc, char* argv[]) {
         if (renderDepth) 
         {
             LOG(INFO) << "Render CubeMap depth maps " << frame_index << " face " << face_abbr;
-            // render depth
             depthFrameBuffer.Bind();
             glPushAttrib(GL_VIEWPORT_BIT);
             glViewport(0, 0, width, height);
             glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+            glClearNamedFramebufferfv(depthFrameBuffer.fbid, GL_COLOR, 0, depthClearValue);
             glEnable(GL_CULL_FACE);
-            ptexMesh.RenderDepth(s_cam_current, depthScale);
+            ptexMesh.RenderDepth(s_cam_current, 1.0);
             glDisable(GL_CULL_FACE);
             glPopAttrib(); //GL_VIEWPORT_BIT
             depthFrameBuffer.Unbind();
             depthTexture.Download(depthImage.ptr, GL_RED, GL_FLOAT);
-            //// convert to 16-bit int
-            //for(size_t face_index = 0; face_index < depthImage.Area(); face_index++)
-            //    depthImageInt[face_index] = static_cast<uint16_t>(depthImage[face_index] + 0.5f);
-            //char filename[1000];
-            //snprintf(filename, 1000, "depth%06zu.png", face_index);
-            //pangolin::SaveImage(
-            //    depthImageInt.UnsafeReinterpret<uint8_t>(),
-            //    pangolin::PixelFormatFromString("GRAY16LE"),
-            //    std::string(filename), true, 34.0f);
             char depthfilename[1024];
             snprintf(depthfilename, 1024, "%s/%04zu_%s_depth.dpt", outputDir.c_str(), frame_index, face_abbr);
             saveDepthmap2dpt(depthfilename, depthImage.ptr, width, height);
@@ -299,7 +291,6 @@ int main(int argc, char* argv[]) {
             snprintf(filename, 1024, "%s/%04zu_%s_motionvector_backward.flo", outputDir.c_str(), (frame_index + 1) % numFrames, face_abbr);
             saveMotionVector(filename, opticalFlow_backward.ptr, width, height); // output optical flow to file
         }
-        pangolin::FinishFrame();
     }
   }
   auto model_stop = std::chrono::high_resolution_clock::now();
