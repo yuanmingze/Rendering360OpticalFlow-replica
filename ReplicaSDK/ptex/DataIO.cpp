@@ -132,7 +132,7 @@ void generateMV(std::vector<pangolin::OpenGlMatrix> &cameraMV, const unsigned in
                  0, 1, 0, 0,
                  0, 0, 1, 0,
                  0, 0, 0, 1;
-  transformation_mat.topRightCorner(3, 1) = Eigen::Vector3d(0.025, 0, 0);
+  transformation_mat.topRightCorner(3, 1) = Eigen::Vector3d(0.25, 0, 0);
   for (int i = 0; i < step_number; i++)
   {
     cameraMV.push_back(pangolin::OpenGlMatrix(T_new_old));

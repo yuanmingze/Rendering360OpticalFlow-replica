@@ -61,6 +61,11 @@ PTexMesh::PTexMesh(const std::string& meshFile, const std::string& atlasFolder, 
   shader.AddShaderFromFile(pangolin::GlSlFragmentShader, shadir + "/mesh-ptex.frag", {}, {shadir});
   shader.Link();
 
+  shaderPano.AddShaderFromFile(pangolin::GlSlVertexShader, shadir + "/mesh-ptex-pano.vert", {}, {shadir});
+  shaderPano.AddShaderFromFile(pangolin::GlSlGeometryShader, shadir + "/mesh-ptex-pano.geom", {}, {shadir});
+  shaderPano.AddShaderFromFile(pangolin::GlSlFragmentShader, shadir + "/mesh-ptex-pano.frag", {}, {shadir});
+  shaderPano.Link();
+
   depthShader.AddShaderFromFile(pangolin::GlSlVertexShader, shadir + "/mesh-depth.vert", {}, {shadir});
   depthShader.AddShaderFromFile(pangolin::GlSlFragmentShader, shadir + "/mesh-depth.frag", {}, {shadir});
   depthShader.Link();
@@ -136,6 +141,45 @@ void PTexMesh::RenderSubMesh(
   mesh.atlas.Unbind();
 
   shader.Unbind();
+}
+
+void PTexMesh::RenderPanoSubMesh(
+    size_t subMesh,
+    const pangolin::OpenGlRenderState &cam)
+{
+  ASSERT(subMesh < meshes.size());
+  Mesh& mesh = *meshes[subMesh];
+
+  shaderPano.Bind();
+  shaderPano.SetUniform("MV", cam.GetModelViewMatrix());
+  shaderPano.SetUniform("tileSize", (int)tileSize);
+  shaderPano.SetUniform("exposure", exposure);
+  shaderPano.SetUniform("gamma", 1.0f / gamma);
+  shaderPano.SetUniform("saturation", saturation);
+  shaderPano.SetUniform("widthInTiles", int(mesh.atlas.width / tileSize));
+
+  glActiveTexture(GL_TEXTURE0);
+  mesh.atlas.Bind();
+
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mesh.abo.bo);
+
+  mesh.vbo.Bind();
+  glVertexAttribPointer(0, mesh.vbo.count_per_element, mesh.vbo.datatype, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(0);
+  mesh.vbo.Unbind();
+
+  mesh.ibo.Bind();
+  // using GL_LINES_ADJACENCY here to send quads to geometry shader
+  glDrawElements(GL_LINES_ADJACENCY, mesh.ibo.num_elements, mesh.ibo.datatype, 0);
+  mesh.ibo.Unbind();
+
+  glDisableVertexAttribArray(0);
+  glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+
+  glActiveTexture(GL_TEXTURE0);
+  mesh.atlas.Unbind();
+
+  shaderPano.Unbind();
 }
 
 // render depth
@@ -217,6 +261,13 @@ void PTexMesh::RenderSubMeshMotionVector(
 void PTexMesh::Render(const pangolin::OpenGlRenderState& cam, const Eigen::Vector4f& clipPlane) {
   for (size_t i = 0; i < meshes.size(); i++) {
     RenderSubMesh(i, cam, clipPlane);
+  }
+}
+
+
+void PTexMesh::RenderPano(const pangolin::OpenGlRenderState& cam) {
+  for (size_t i = 0; i < meshes.size(); i++) {
+    RenderPanoSubMesh(i, cam);
   }
 }
 

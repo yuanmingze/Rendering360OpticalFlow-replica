@@ -133,7 +133,8 @@ int main(int argc, char* argv[]) {
   pangolin::ManagedImage<Eigen::Matrix<float, 4, 1>> opticalFlow_forward(width, height);
   pangolin::ManagedImage<Eigen::Matrix<float, 4, 1>> opticalFlow_backward(width, height);
   const size_t numFrames = cameraMV.size();
-  for (size_t frame_index = 0; frame_index < numFrames; frame_index++) {
+  for (size_t frame_index = 0; frame_index < numFrames; frame_index++)
+  {
     LOG(INFO) << "\rRendering frame " << frame_index + 1 << "/" << numFrames << "... ";
 
     // 0) load & update the camera pose & MV matrix

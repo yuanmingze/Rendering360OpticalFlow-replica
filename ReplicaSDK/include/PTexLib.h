@@ -23,6 +23,10 @@ class PTexMesh {
       const pangolin::OpenGlRenderState& cam,
       const Eigen::Vector4f& clipPlane);
 
+  void RenderPanoSubMesh(
+      size_t subMesh,
+      const pangolin::OpenGlRenderState& cam);
+
   void RenderSubMeshDepth(
       size_t subMesh,
       const pangolin::OpenGlRenderState& cam,
@@ -40,6 +44,9 @@ class PTexMesh {
   void Render(
       const pangolin::OpenGlRenderState& cam,
       const Eigen::Vector4f& clipPlane = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f));
+
+  void RenderPano(
+      const pangolin::OpenGlRenderState& cam);
 
   void RenderWireframe(
       const pangolin::OpenGlRenderState& cam,
@@ -88,6 +95,7 @@ class PTexMesh {
   uint32_t tileSize = 0;
 
   pangolin::GlSlProgram shader;
+  pangolin::GlSlProgram shaderPano;
   pangolin::GlSlProgram depthShader;
   pangolin::GlSlProgram motionVectorShader;
 

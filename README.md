@@ -2,12 +2,9 @@
 
 Features:
 - [x] Correct the texture loading error caused by std::sort in windows. Wrap GCC std::sort to sort_linux.dll;
-- [ ] Parse input parameters by GFlags;
-- [ ] CubeMap Optical Flow output;
-  - [ ] Render 2D motion flow;
-- [ ] Panoramic RGB images;
-  - [ ] PTexlib
-  - [ ] gflags parse arguments
+- [x] Parse input parameters by GFlags;
+- [x] CubeMap Optical Flow output, render perspective images motion flow;
+- [x] Panoramic RGB images;
 - [ ] Panoramic Depth images;
 - [ ] Panoramic Optical Flow output;
 - [ ] Render Path Loader c++;
