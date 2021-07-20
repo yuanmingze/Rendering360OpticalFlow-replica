@@ -8,12 +8,12 @@ Features:
 - [x] Render CubeMap RGB image, depth map and Optical Flow; 
 - [x] Perspective unavailable pixel mask;
 - [x] Panoramic RGB images;
-- [ ] Panoramic Depth images;
+- [x] Panoramic Depth images;
 - [ ] Panoramic Optical Flow;
 - [ ] Panoramic Optical Flow occlusion maps;
-- [ ] Panoramic unavailable pixel mask;
+- [x] Panoramic unavailable pixel mask (The pixel value depth less than 0 is unavailable pixels);
 - [ ] Panoramic mirror rendering;
-- [ ] Pre-build binary on Windows 10.
+- [ ] Pre-build binary for the Windows 10.
 
 Test on:
 - Windows 10
@@ -57,6 +57,10 @@ The camera path coordinate system is same as the Replica coordinate system, and 
 **Rendering Programs**
 
 The `ReplicaRendererCubemap.exe` is for render the CubeMap (perspective view) RGB image, depth map and optical flow.
+Output is:
+- RGB image: %04zu_%s_rgb.jpg
+- Depth map: %04zu_%s_depth.dpt
+- Motion vector: %04zu_%s_motionvector_forward.flo & %04zu_%s_motionvector_backward.flo
 
 The `ReplicaRendererPanorama.exe` is for render the panoramic RGB image, depth map and optical flow.
 

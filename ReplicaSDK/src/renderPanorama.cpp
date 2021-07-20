@@ -25,6 +25,10 @@ DEFINE_bool(renderRGBEnable, true, "Render RGB image.");
 DEFINE_bool(renderDepthEnable, false, "Render depth maps.");
 DEFINE_bool(renderMotionVectorEnable, false, "Render motion flow.");
 
+DEFINE_double(texture_exposure, 1.0, "The texture  exposure.");
+DEFINE_double(texture_gamma, 1.0, "The texture gamma.");
+DEFINE_double(texture_saturation, 1.0, "The texture saturation.");
+
 int main(int argc, char *argv[])
 {
   auto model_start = std::chrono::high_resolution_clock::now();
@@ -80,6 +84,7 @@ int main(int argc, char *argv[])
 
   // Don't draw backfaces
   glEnable(GL_DEPTH_TEST);
+  GLfloat depthClearValue[] = { -10.0 };
   const GLenum frontFace = GL_CW;
   glFrontFace(frontFace);
 
@@ -133,6 +138,9 @@ int main(int argc, char *argv[])
 
   // load mesh and textures
   PTexMesh ptexMesh(meshFile, atlasFolder);
+  ptexMesh.SetExposure(FLAGS_texture_exposure);
+  ptexMesh.SetGamma(FLAGS_texture_gamma);
+  ptexMesh.SetSaturation(FLAGS_texture_saturation);
   const std::string shadir = STR(SHADER_DIR);
   MirrorRenderer mirrorRenderer(mirrors, width, height, shadir);
 
@@ -154,7 +162,7 @@ int main(int argc, char *argv[])
     // Render
     if (renderRGB)
     {
-      LOG(INFO) << "Render CubeMap RGB images " << frame_index;
+      LOG(INFO) << "Render Panoramic RGB images " << frame_index;
       frameBuffer.Bind();
       glPushAttrib(GL_VIEWPORT_BIT);
       glViewport(0, 0, width, height);
@@ -184,31 +192,30 @@ int main(int argc, char *argv[])
       // Download and save
       render.Download(image.ptr, GL_RGB, GL_UNSIGNED_BYTE);
       char cubemapFilename[1024];
-      snprintf(cubemapFilename, 1024, "%s/%04zu_rgb.jpg", outputDir.c_str(), frame_index);
+      snprintf(cubemapFilename, 1024, "%s/%04zu_rgb_pano.jpg", outputDir.c_str(), frame_index);
       pangolin::SaveImage(image.UnsafeReinterpret<uint8_t>(),
                           pangolin::PixelFormatFromString("RGB24"),
                           std::string(cubemapFilename));
     }
 
-    // if (renderDepth)
-    // {
-    //   LOG(INFO) << "Render CubeMap depth maps " << frame_index;
-    //   // render depth
-    //   depthFrameBuffer.Bind();
-    //   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    //   glPushAttrib(GL_VIEWPORT_BIT);
-    //   glViewport(0, 0, width, height);
-    //   glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    //   glEnable(GL_CULL_FACE);
-    //   ptexMesh.RenderDepth(s_cam_current, depthScale);
-    //   glDisable(GL_CULL_FACE);
-    //   glPopAttrib(); //GL_VIEWPORT_BIT
-    //   depthFrameBuffer.Unbind();
-    //   depthTexture.Download(depthImage.ptr, GL_RED, GL_FLOAT);
-    //   char depthfilename[1024];
-    //   snprintf(depthfilename, 1024, "%s/%04zu_depth.dpt", outputDir.c_str(), frame_index);
-    //   saveDepthmap2dpt(depthfilename, depthImage.ptr, width, height);
-    // }
+    if (renderDepth)
+    {
+        LOG(INFO) << "Render Panoramic depth maps " << frame_index;
+        depthFrameBuffer.Bind();
+        glPushAttrib(GL_VIEWPORT_BIT);
+        glViewport(0, 0, width, height);
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        glClearNamedFramebufferfv(depthFrameBuffer.fbid, GL_COLOR, 0, depthClearValue);
+        glEnable(GL_CULL_FACE);
+        ptexMesh.RenderPanoDepth(s_cam_current, depthScale);
+        glDisable(GL_CULL_FACE);
+        glPopAttrib(); //GL_VIEWPORT_BIT
+        depthFrameBuffer.Unbind();
+        depthTexture.Download(depthImage.ptr, GL_RED, GL_FLOAT);
+        char depthfilename[1024];
+        snprintf(depthfilename, 1024, "%s/%04zu_depth_pano.dpt", outputDir.c_str(), frame_index);
+        saveDepthmap2dpt(depthfilename, depthImage.ptr, width, height);
+    }
 
     // if (renderMotionFlow)
     // {

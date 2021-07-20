@@ -25,6 +25,10 @@ DEFINE_bool(renderRGBEnable, true, "Render RGB image.");
 DEFINE_bool(renderDepthEnable, false, "Render depth maps.");
 DEFINE_bool(renderMotionVectorEnable, false, "Render motion flow.");
 
+DEFINE_double(texture_exposure, 1.0, "The texture  exposure.");
+DEFINE_double(texture_gamma, 1.0, "The texture gamma.");
+DEFINE_double(texture_saturation, 1.0, "The texture saturation.");
+
 int main(int argc, char* argv[]) {
   auto model_start = std::chrono::high_resolution_clock::now();
 
@@ -125,6 +129,9 @@ int main(int argc, char* argv[]) {
 
   // load mesh and textures
   PTexMesh ptexMesh(meshFile, atlasFolder);
+  ptexMesh.SetExposure(FLAGS_texture_exposure);
+  ptexMesh.SetGamma(FLAGS_texture_gamma);
+  ptexMesh.SetSaturation(FLAGS_texture_saturation);
   const std::string shadir = STR(SHADER_DIR);
   MirrorRenderer mirrorRenderer(mirrors, width, height, shadir);
 
@@ -254,14 +261,13 @@ int main(int argc, char* argv[]) {
             glViewport(0, 0, width, height);
             glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
             // glFrontFace(GL_CCW);      //Don't draw backfaces
-            // glEnable(GL_CULL_FACE);
-            glDisable(GL_CULL_FACE);
-            glDisable(GL_LINE_SMOOTH);
-            glDisable(GL_POLYGON_SMOOTH);
-            glDisable(GL_MULTISAMPLE);
+            glEnable(GL_CULL_FACE);
+            // glDisable(GL_CULL_FACE);
+            // glDisable(GL_LINE_SMOOTH);
+            // glDisable(GL_POLYGON_SMOOTH);
+            // glDisable(GL_MULTISAMPLE);
             ptexMesh.RenderMotionVector(s_cam_current, s_cam_next, width, height);
-            glDisable(GL_CULL_FACE);
-            glEnable(GL_MULTISAMPLE);
+            // glEnable(GL_MULTISAMPLE);
             glPopAttrib(); //GL_VIEWPORT_BIT
             opticalflowFrameBuffer.Unbind();
             opticalflowTexture.Download(opticalFlow_forward.ptr, GL_RGBA, GL_FLOAT);
@@ -277,14 +283,13 @@ int main(int argc, char* argv[]) {
             glViewport(0, 0, width, height);
             glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
             // glFrontFace(GL_CCW);      //Don't draw backfaces
-            // glEnable(GL_CULL_FACE);
-            glDisable(GL_CULL_FACE);
-            glDisable(GL_LINE_SMOOTH);
-            glDisable(GL_POLYGON_SMOOTH);
-            glDisable(GL_MULTISAMPLE);
+            glEnable(GL_CULL_FACE);
+            // glDisable(GL_CULL_FACE);
+            // glDisable(GL_LINE_SMOOTH);
+            // glDisable(GL_POLYGON_SMOOTH);
+            // glDisable(GL_MULTISAMPLE);
             ptexMesh.RenderMotionVector(s_cam_next, s_cam_current, width, height);
-            glDisable(GL_CULL_FACE);
-            glEnable(GL_MULTISAMPLE);
+            // glEnable(GL_MULTISAMPLE);
             glPopAttrib(); //GL_VIEWPORT_BIT
             opticalflowFrameBuffer.Unbind();
             opticalflowTexture.Download(opticalFlow_backward.ptr, GL_RGBA, GL_FLOAT);

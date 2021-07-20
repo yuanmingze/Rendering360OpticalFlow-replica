@@ -70,6 +70,11 @@ PTexMesh::PTexMesh(const std::string& meshFile, const std::string& atlasFolder, 
   depthShader.AddShaderFromFile(pangolin::GlSlFragmentShader, shadir + "/mesh-depth.frag", {}, {shadir});
   depthShader.Link();
 
+  depthPanoShader.AddShaderFromFile(pangolin::GlSlVertexShader, shadir + "/mesh-ptex-pano-depth.vert", {}, { shadir });
+  depthPanoShader.AddShaderFromFile(pangolin::GlSlGeometryShader, shadir + "/mesh-ptex-pano-depth.geom", {}, { shadir });
+  depthPanoShader.AddShaderFromFile(pangolin::GlSlFragmentShader, shadir + "/mesh-ptex-pano-depth.frag", {}, { shadir });
+  depthPanoShader.Link();
+
   motionVectorShader.AddShaderFromFile(pangolin::GlSlVertexShader, shadir + "/mesh-motionflow.vert", {}, {shadir});
   motionVectorShader.AddShaderFromFile(pangolin::GlSlGeometryShader, shadir + "/mesh-motionflow.geom", {}, {shadir});
   motionVectorShader.AddShaderFromFile(pangolin::GlSlFragmentShader, shadir + "/mesh-motionflow.frag", {}, {shadir});
@@ -218,6 +223,43 @@ void PTexMesh::RenderSubMeshDepth(
   glPopAttrib();
 }
 
+void PTexMesh::RenderPanoSubMeshDepth(
+    size_t subMesh,
+    const pangolin::OpenGlRenderState& cam,
+    const float depthScale,
+    const Eigen::Vector4f& clipPlane)
+{
+    ASSERT(subMesh < meshes.size());
+    Mesh& mesh = *meshes[subMesh];
+
+    depthPanoShader.Bind();
+    depthPanoShader.SetUniform("MV", cam.GetModelViewMatrix());
+    depthPanoShader.SetUniform("tileSize", (int)tileSize);
+    depthPanoShader.SetUniform("exposure", exposure);
+    depthPanoShader.SetUniform("gamma", 1.0f / gamma);
+    depthPanoShader.SetUniform("saturation", saturation);
+    depthPanoShader.SetUniform("widthInTiles", int(mesh.atlas.width / tileSize));
+
+    glActiveTexture(GL_TEXTURE0);
+    mesh.atlas.Bind();
+
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mesh.abo.bo);
+
+    mesh.vbo.Bind();
+    glVertexAttribPointer(0, mesh.vbo.count_per_element, mesh.vbo.datatype, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
+    mesh.vbo.Unbind();
+
+    mesh.ibo.Bind();
+    // using GL_LINES_ADJACENCY here to send quads to geometry shader
+    glDrawElements(GL_LINES_ADJACENCY, mesh.ibo.num_elements, mesh.ibo.datatype, 0);
+    mesh.ibo.Unbind();
+
+    glDisableVertexAttribArray(0);
+    
+    mesh.atlas.Unbind();
+    depthPanoShader.Unbind();
+}
 
 void PTexMesh::RenderSubMeshMotionVector(
     size_t subMesh,
@@ -241,6 +283,7 @@ void PTexMesh::RenderSubMeshMotionVector(
     motionVectorShader.SetUniform("MVP_current", cam_currnet.GetProjectionModelViewMatrix());
     motionVectorShader.SetUniform("MVP_next", cam_next.GetProjectionModelViewMatrix());
     motionVectorShader.SetUniform("window_size",(float)image_width, (float)image_height);
+    motionVectorShader.SetUniform("clipPlane", clipPlane(0), clipPlane(1), clipPlane(2), clipPlane(3));
 
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mesh.abo.bo);
     mesh.vbo.Bind();
@@ -274,6 +317,13 @@ void PTexMesh::RenderPano(const pangolin::OpenGlRenderState& cam) {
 void PTexMesh::RenderDepth(const pangolin::OpenGlRenderState& cam, const float depthScale, const Eigen::Vector4f& clipPlane) {
   for (size_t i = 0; i < meshes.size(); i++) {
     RenderSubMeshDepth(i, cam, depthScale, clipPlane);
+  }
+}
+
+void PTexMesh::RenderPanoDepth(const pangolin::OpenGlRenderState& cam, const float depthScale , const Eigen::Vector4f& clipPlane)
+{
+  for (size_t i = 0; i < meshes.size(); i++) {
+    RenderPanoSubMeshDepth(i, cam, depthScale, clipPlane);
   }
 }
 

@@ -12,21 +12,25 @@ void main()
 {
     gl_PrimitiveID = gl_PrimitiveIDIn;
     
+    gl_ClipDistance[0] = gl_in[1].gl_ClipDistance[0];    
     gl_Position = gl_in[1].gl_Position;
     vpos = gl_in[1].gl_Position;
     vposNext = pos_next[1];
     EmitVertex();
 
+    gl_ClipDistance[0] = gl_in[0].gl_ClipDistance[0];
     gl_Position = gl_in[0].gl_Position;
     vpos = gl_in[0].gl_Position;
     vposNext = pos_next[0];
     EmitVertex();
 
+    gl_ClipDistance[0] = gl_in[2].gl_ClipDistance[0];
     gl_Position = gl_in[2].gl_Position;
     vpos = gl_in[2].gl_Position;
     vposNext = pos_next[2];
     EmitVertex();
 
+    gl_ClipDistance[0] = gl_in[3].gl_ClipDistance[0];
     gl_Position = gl_in[3].gl_Position;
     vpos = gl_in[3].gl_Position;
     vposNext = pos_next[3];

@@ -13,7 +13,6 @@ void main()
     float vpos_image_x = (vpos.x / vpos.w + 1.0f ) * 0.5 * window_size.x;
     float vposNext_image_x = (vposNext.x / vposNext.w + 1.0f ) * 0.5 * window_size.x;
     float diff_x_forward =  vposNext_image_x - vpos_image_x;
-    
     float vpos_image_y = (vpos.y / vpos.w + 1.0f ) * 0.5 * window_size.y;
     float vposNext_image_y = (vposNext.y / vposNext.w + 1.0f ) * 0.5 * window_size.y;
     float diff_y_forward = vposNext_image_y - vpos_image_y;

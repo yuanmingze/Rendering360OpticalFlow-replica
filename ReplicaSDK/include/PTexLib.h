@@ -33,6 +33,12 @@ class PTexMesh {
       const float depthScale,
       const Eigen::Vector4f& clipPlane);
 
+  void RenderPanoSubMeshDepth(
+      size_t subMesh,
+      const pangolin::OpenGlRenderState& cam,
+      const float depthScale,
+      const Eigen::Vector4f& clipPlane);
+
   void RenderSubMeshMotionVector(
       size_t subMesh,
       const pangolin::OpenGlRenderState& cam_currnet, 
@@ -56,6 +62,11 @@ class PTexMesh {
     const pangolin::OpenGlRenderState& cam,
     const float depthScale=1.0f,
     const Eigen::Vector4f& clipPlane = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f));
+
+  void RenderPanoDepth(
+      const pangolin::OpenGlRenderState& cam,
+      const float depthScale = 1.0f,
+      const Eigen::Vector4f& clipPlane = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f));
 
   void RenderMotionVector(
     const pangolin::OpenGlRenderState& cam,
@@ -97,6 +108,7 @@ class PTexMesh {
   pangolin::GlSlProgram shader;
   pangolin::GlSlProgram shaderPano;
   pangolin::GlSlProgram depthShader;
+  pangolin::GlSlProgram depthPanoShader;
   pangolin::GlSlProgram motionVectorShader;
 
   float exposure = 1.0f;
