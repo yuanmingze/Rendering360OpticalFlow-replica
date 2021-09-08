@@ -35,7 +35,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MDd")
 #############################
 # DEPENDENCIES DIR
 #############################
-set(Eigen3_DIR "D:/libraries_windows/eigen-3.3.7/eigen-3.3.7-bin/share/eigen3/cmake")
+set(Eigen3_DIR "D:/libraries_windows/eigen/eigen-3.3.9-bin/share/eigen3/cmake")
 set(gflags_DIR "D:/libraries_windows/glog/glog_with_gflags-0.4.0-msvc14.0-x64-dll/gflags-2.2.2-bin/lib/cmake/gflags/")
 set(glog_DIR "D:/libraries_windows/glog/glog_with_gflags-0.4.0-msvc14.0-x64-dll/glog-0.4.0-bin/lib/cmake/glog/")
 set(GLEW_DIR "D:/libraries_windows/glew/glew-2.1.0-bin/lib/cmake/glew")

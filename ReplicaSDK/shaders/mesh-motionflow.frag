@@ -17,5 +17,6 @@ void main()
     float vposNext_image_y = (vposNext.y / vposNext.w + 1.0f ) * 0.5 * window_size.y;
     float diff_y_forward = vposNext_image_y - vpos_image_y;
 
-    optical_flow = vec4(diff_x_forward, diff_y_forward,  0.0, 1.0f);
+    // output the target points z to find the point wrap-around.
+    optical_flow = vec4(diff_x_forward, diff_y_forward, vposNext.z, 1.0f);
 }

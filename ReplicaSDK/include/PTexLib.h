@@ -47,6 +47,14 @@ class PTexMesh {
       const int image_height,
       const Eigen::Vector4f& clipPlane);
 
+  void RenderSubMeshPanoMotionVector(
+      size_t subMesh,
+      const pangolin::OpenGlRenderState& cam_currnet, 
+      const pangolin::OpenGlRenderState& cam_next,
+      const int image_width,
+      const int image_height,
+      const Eigen::Vector4f& clipPlane);
+
   void Render(
       const pangolin::OpenGlRenderState& cam,
       const Eigen::Vector4f& clipPlane = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f));
@@ -74,6 +82,12 @@ class PTexMesh {
     const int image_width,
     const int image_height,
     const Eigen::Vector4f& clipPlane = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f));
+
+  void RenderPanoMotionVector(const pangolin::OpenGlRenderState& cam_currnet, 
+    const pangolin::OpenGlRenderState& cam_next,
+    const int image_width,
+    const int image_height,
+      const Eigen::Vector4f& clipPlane = Eigen::Vector4f(0.0f, 0.0f, 0.0f, 0.0f));
 
   float Exposure() const;
   void SetExposure(const float& val);
@@ -110,6 +124,7 @@ class PTexMesh {
   pangolin::GlSlProgram depthShader;
   pangolin::GlSlProgram depthPanoShader;
   pangolin::GlSlProgram motionVectorShader;
+  pangolin::GlSlProgram motionVectorPanoShader;
 
   float exposure = 1.0f;
   float gamma = 1.0f;

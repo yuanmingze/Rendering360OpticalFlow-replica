@@ -79,6 +79,11 @@ PTexMesh::PTexMesh(const std::string& meshFile, const std::string& atlasFolder, 
   motionVectorShader.AddShaderFromFile(pangolin::GlSlGeometryShader, shadir + "/mesh-motionflow.geom", {}, {shadir});
   motionVectorShader.AddShaderFromFile(pangolin::GlSlFragmentShader, shadir + "/mesh-motionflow.frag", {}, {shadir});
   motionVectorShader.Link();
+
+  motionVectorPanoShader.AddShaderFromFile(pangolin::GlSlVertexShader, shadir + "/mesh-ptex-pano-motionflow.vert", {}, {shadir});
+  motionVectorPanoShader.AddShaderFromFile(pangolin::GlSlGeometryShader, shadir + "/mesh-ptex-pano-motionflow.geom", {}, {shadir});
+  motionVectorPanoShader.AddShaderFromFile(pangolin::GlSlFragmentShader, shadir + "/mesh-ptex-pano-motionflow.frag", {}, {shadir});
+  motionVectorPanoShader.Link();
 }
 
 PTexMesh::~PTexMesh() {}
@@ -301,6 +306,38 @@ void PTexMesh::RenderSubMeshMotionVector(
     motionVectorShader.Unbind();
 }
 
+void PTexMesh::RenderSubMeshPanoMotionVector(
+    size_t subMesh,
+    const pangolin::OpenGlRenderState& cam_currnet, 
+    const pangolin::OpenGlRenderState& cam_next,
+    const int image_width,
+    const int image_height,
+    const Eigen::Vector4f& clipPlane)
+    {
+      ASSERT(subMesh < meshes.size());
+      Mesh& mesh = *meshes[subMesh];
+
+      motionVectorPanoShader.Bind();
+      motionVectorPanoShader.SetUniform("MV_current", cam_currnet.GetModelViewMatrix());
+      motionVectorPanoShader.SetUniform("MV_next", cam_next.GetModelViewMatrix());
+      motionVectorPanoShader.SetUniform("window_size",(float)image_width, (float)image_height);
+
+      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, mesh.abo.bo);
+      mesh.vbo.Bind();
+      glVertexAttribPointer(0, mesh.vbo.count_per_element, mesh.vbo.datatype, GL_FALSE, 0, 0);
+      glEnableVertexAttribArray(0);
+      mesh.vbo.Unbind();
+
+      mesh.ibo.Bind();
+      // using GL_LINES_ADJACENCY here to send quads to geometry shader
+      glDrawElements(GL_LINES_ADJACENCY, mesh.ibo.num_elements, mesh.ibo.datatype, 0);
+      mesh.ibo.Unbind();
+
+      glDisableVertexAttribArray(0);
+      glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, 0);
+      motionVectorPanoShader.Unbind();
+    }
+
 void PTexMesh::Render(const pangolin::OpenGlRenderState& cam, const Eigen::Vector4f& clipPlane) {
   for (size_t i = 0; i < meshes.size(); i++) {
     RenderSubMesh(i, cam, clipPlane);
@@ -334,6 +371,16 @@ void PTexMesh::RenderMotionVector(const pangolin::OpenGlRenderState& cam_currnet
     const Eigen::Vector4f& clipPlane) {
   for (size_t i = 0; i < meshes.size(); i++) {
     RenderSubMeshMotionVector(i, cam_currnet, cam_next, image_width, image_height, clipPlane);
+  }
+}
+
+void PTexMesh::RenderPanoMotionVector(const pangolin::OpenGlRenderState& cam_currnet, 
+    const pangolin::OpenGlRenderState& cam_next,
+    const int image_width,
+    const int image_height,
+    const Eigen::Vector4f& clipPlane) {
+  for (size_t i = 0; i < meshes.size(); i++) {
+    RenderSubMeshPanoMotionVector(i, cam_currnet, cam_next, image_width, image_height, clipPlane);
   }
 }
 

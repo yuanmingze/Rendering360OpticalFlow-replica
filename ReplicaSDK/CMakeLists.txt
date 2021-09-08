@@ -14,6 +14,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSHADER_DIR=${PTEX_SHADER_DIR}")
 #include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories("./include")
 
+
 #######   ReplicaRenderer   #######
 file(GLOB srcs_ptex ptex/*.cpp)
 file(GLOB hdrs include/*.h)
@@ -68,6 +69,18 @@ target_link_libraries(ReplicaRendererCubemap PUBLIC
                       glog::glog
                       ptex
 )
+set(MODULE_NAME ReplicaRendererCubemap)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+    # generate *.pdb file for Visual studio debug
+    message("Set ${MODULE_NAME} to generate *.pdb for MSVC debugging.")
+    target_compile_options(${MODULE_NAME} PRIVATE $<$<CONFIG:Release>:/Zi>)
+    target_link_options(${MODULE_NAME} PRIVATE $<$<CONFIG:Release>:/DEBUG>)
+    target_link_options(${MODULE_NAME} PRIVATE $<$<CONFIG:Release>:/OPT:REF>)
+    target_link_options(${MODULE_NAME} PRIVATE $<$<CONFIG:Release>:/OPT:ICF>)
+    # DLL export all symbols
+    set_target_properties(${MODULE_NAME} PROPERTIES ENABLE_EXPORTS 1)
+    set_target_properties(${MODULE_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS 1)
+endif()
 
 #######   ReplicaRendererPanorama   #######
 add_executable(ReplicaRendererPanorama src/renderPanorama.cpp)

@@ -273,7 +273,8 @@ int main(int argc, char* argv[]) {
             opticalflowTexture.Download(opticalFlow_forward.ptr, GL_RGBA, GL_FLOAT);
             char filename[1024];
             snprintf(filename, 1024, "%s/%04zu_%s_motionvector_forward.flo", outputDir.c_str(), frame_index, face_abbr);
-            saveMotionVector(filename, opticalFlow_forward.ptr, width, height); // output optical flow to file
+            saveMotionVector(filename, opticalFlow_forward.ptr, width, height, true); // output optical flow to file
+            // save the target points depth.
 
             // 1) render optical flow (next frame to current frame)
             LOG(INFO) << "Render CubeMap depth backward optical flow " << frame_index << " face " << face_abbr;
@@ -294,7 +295,7 @@ int main(int argc, char* argv[]) {
             opticalflowFrameBuffer.Unbind();
             opticalflowTexture.Download(opticalFlow_backward.ptr, GL_RGBA, GL_FLOAT);
             snprintf(filename, 1024, "%s/%04zu_%s_motionvector_backward.flo", outputDir.c_str(), (frame_index + 1) % numFrames, face_abbr);
-            saveMotionVector(filename, opticalFlow_backward.ptr, width, height); // output optical flow to file
+            saveMotionVector(filename, opticalFlow_backward.ptr, width, height, true); // output optical flow to file
         }
     }
   }

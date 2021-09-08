@@ -7,7 +7,7 @@
 class pangolin::OpenGlMatrix;
 
 // save optical flow to *.flo files
-void saveMotionVector(const char *filename, const void *ptr, const int width, const int height);
+void saveMotionVector(const char *filename, const void *ptr, const int width, const int height, const bool targetDepthEnable = false);
 
 // write the depth map to a .dpt file (Sintel format).
 void saveDepthmap2dpt(const char *filename, const void *ptr, const int width, const int height);

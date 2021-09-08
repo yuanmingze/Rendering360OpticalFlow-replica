@@ -12,7 +12,7 @@
 //#include <DepthMeshLib.h>
 #include <DataIO.h>
 
-void saveMotionVector(const char *filename, const void *ptr, const int width, const int height)
+void saveMotionVector(const char *filename, const void *ptr, const int width, const int height, const bool target_depth_enable)
 {
   std::ofstream flo_file(filename, std::ios::binary);
   if (!flo_file)
@@ -21,12 +21,25 @@ void saveMotionVector(const char *filename, const void *ptr, const int width, co
   }
   else
   {
+    // save the optical flow to *.flo
     flo_file << "PIEH";
     flo_file.write((char *)&width, sizeof(int));
     flo_file.write((char *)&height, sizeof(int));
     for (int i = 0; i < width * height; i++)
     {
       flo_file.write(static_cast<const char *>((char *)ptr + sizeof(float) * 4 * i), 2 * sizeof(float)); // output the first to channel
+    }
+    if (target_depth_enable)
+    {
+      // save the target points depth to *.dpt
+      std::string dptFilePath = std::string(filename) + ".dpt";
+      float* targetDepth = (float*)malloc(width * height * sizeof(float));
+      for (int i = 0; i < width * height; i++)
+      {
+          targetDepth[i] = ((float*)(ptr))[4 * i + 2];
+      }
+      saveDepthmap2dpt(dptFilePath.c_str(), (void *)targetDepth, width, height);
+      free(targetDepth);
     }
   }
   flo_file.close();
