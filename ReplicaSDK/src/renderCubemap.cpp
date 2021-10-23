@@ -3,6 +3,7 @@
 #include <GLCheck.h>
 #include <MirrorRenderer.h>
 #include <DataIO.h>
+#include <EGL.h>
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
@@ -68,6 +69,7 @@ int main(int argc, char* argv[]) {
   float depthScale = 1.0f;//65535.0f * 0.1f;
 
   // 1) Setup OpenGL Display
+#ifdef _WIN32
   pangolin::CreateWindowAndBind("ReplicaViewer", width, height);
   if (glewInit() != GLEW_OK) {
       pango_print_error("Unable to initialize GLEW.");
@@ -75,6 +77,15 @@ int main(int argc, char* argv[]) {
   if (!checkGLVersion()) {
       return 1;
   }
+#elif __linux__
+    // Setup EGL
+  EGLCtx egl;
+  egl.PrintInformation();
+  
+  if(!checkGLVersion()) {
+    return 1;
+  }
+#endif
 
   // Don't draw backfaces
   glEnable(GL_DEPTH_TEST);
@@ -154,7 +165,7 @@ int main(int argc, char* argv[]) {
     for (int face_index = 0; face_index < 6; ++face_index)
     {
         Eigen::Transform<double, 3, Eigen::Affine> t;
-        char * face_abbr;
+        const char *  face_abbr;
         if (face_index == 0)
         {
             // look +x axis

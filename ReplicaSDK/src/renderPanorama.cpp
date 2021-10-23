@@ -3,6 +3,7 @@
 #include <GLCheck.h>
 #include <MirrorRenderer.h>
 #include <DataIO.h>
+#include <EGL.h>
 
 #include <gflags/gflags.h>
 #include <glog/logging.h>
@@ -74,6 +75,7 @@ int main(int argc, char *argv[])
   float depthScale = 1.0f; //65535.0f * 0.1f;
 
   // 1) Setup OpenGL Display
+#ifdef _WIN32
   pangolin::CreateWindowAndBind("ReplicaViewer", width, height);
   if (glewInit() != GLEW_OK)
   {
@@ -83,6 +85,15 @@ int main(int argc, char *argv[])
   {
     return 1;
   }
+#elif __linux__
+    // Setup EGL
+  EGLCtx egl;
+  egl.PrintInformation();
+  
+  if(!checkGLVersion()) {
+    return 1;
+  }
+#endif
 
   // Don't draw backfaces
   glEnable(GL_DEPTH_TEST);
@@ -123,7 +134,7 @@ int main(int argc, char *argv[])
   pangolin::OpenGlRenderState s_cam_next;
   s_cam_next.GetProjectionMatrix() = s_cam_current.GetProjectionMatrix();
 
-  //// load mirrors
+  //// TODO load mirrors, rendering 360 image's mirror
   //std::vector<MirrorSurface> mirrors;
   //if (surfaceFile.length())
   //{

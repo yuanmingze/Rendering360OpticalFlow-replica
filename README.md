@@ -13,16 +13,28 @@ Features:
 - [ ] Panoramic Optical Flow occlusion maps;
 - [x] Panoramic unavailable pixel mask (The pixel value depth less than 0 is unavailable pixels);
 - [ ] Panoramic mirror rendering;
-- [ ] Pre-build binary for the Windows 10.
+- [ ] Pre-build binary for the Windows 10;
+- [ ] Dockerfile base on ubuntu 20.04.
 
 Test on:
-- Windows 10
-- Visual Stuido 2019
-- GLEW: 2.1.0
-- Pangolin: 0.6
-- Eigen: 3.3.7
-- Glog: 2.2.2
-- Gflag: 0.4.0
+
+**Windows**:
+  - Windows 10
+  - Visual Stuido 2019
+  - GLEW: 2.1.0
+  - Pangolin: 0.6
+  - Eigen: 3.3.7
+  - Glog: 0.4.0
+  - Gflag: 2.2.2
+
+**linux**:
+  - ubuntu 20.04
+  - GCC: 9.3.0
+  - GLEW: 2.1.0
+  - Pangolin: 0.6
+  - Eigen: 3.3.7
+  - Glog: 0.5.0
+  - Gflag: 2.2.2
 
 ## Coordinate System
 

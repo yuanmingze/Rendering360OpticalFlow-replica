@@ -58,6 +58,7 @@ target_link_libraries(ReplicaRenderer PUBLIC
                       gflags
                       glog::glog
                       ptex
+                      ${CMAKE_DL_LIBS}
 )
 
 #######   ReplicaRendererCubemap   #######
@@ -68,6 +69,7 @@ target_link_libraries(ReplicaRendererCubemap PUBLIC
                       gflags
                       glog::glog
                       ptex
+                      ${CMAKE_DL_LIBS}
 )
 set(MODULE_NAME ReplicaRendererCubemap)
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -90,4 +92,5 @@ target_link_libraries(ReplicaRendererPanorama PUBLIC
                       gflags
                       glog::glog
                       ptex
+                      ${CMAKE_DL_LIBS}
 )

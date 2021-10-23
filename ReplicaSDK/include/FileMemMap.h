@@ -2,19 +2,18 @@
 
 #include <string>
 
-#ifdef WIN32
-#define NOMINMAX
-#include <windows.h>
+#ifdef _WIN32
+	#define NOMINMAX
+	#include <windows.h>
 #endif
 
 class FileMemMap
 {
 public:
-
 	FileMemMap() {}
 
 	// map file to memory
-	char* mapfile(const std::string& filename);
+	char *mapfile(const std::string &filename);
 
 	// release file and mapped resource
 	void release();
@@ -23,7 +22,7 @@ private:
 	// file path
 	std::string filename;
 
-#ifdef WIN32
+#ifdef _WIN32
 	// file handle
 	HANDLE hFile;
 
@@ -32,9 +31,11 @@ private:
 
 	// file view address
 	LPVOID lpMapAddress;
-#else
+#elif __linux__
 	// file handle linux
-	int fd;
-#endif
+	void *mmappedData = nullptr;
 
+	size_t fileSize;
+
+#endif
 };

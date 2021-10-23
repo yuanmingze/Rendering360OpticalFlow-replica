@@ -1,32 +1,33 @@
 
 #include "FileMemMap.h"
 
-#ifdef WIN32
 #include <filesystem>
-#include <strsafe.h>
-#include <atlstr.h>
-#include <algorithm>
-#else
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
+
+#ifdef _WIN32
+	#include <strsafe.h>
+	#include <atlstr.h>
+	#include <algorithm>
+#elif __linux__
+	#include <fcntl.h>
+	#include <sys/mman.h>
+	#include <unistd.h>
 #endif
 
-#ifdef WIN32
+#ifdef _WIN32
 
-char* FileMemMap::mapfile(const std::string& filename)
+char *FileMemMap::mapfile(const std::string &filename)
 {
 	// 0)open file  // TODO support wchar
 	//TCHAR szName[512];
 	//_tcscpy(szName, A2T(filename.c_str()));
 	//HANDLE hFile;
-	hFile = CreateFile(filename.c_str(),       // file to open
-		GENERIC_READ,								 // open for reading
-		FILE_SHARE_READ,								 // share for reading
-		NULL,										 // default security
-		OPEN_EXISTING,								 // existing file only
-		FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, // normal file
-		NULL);										 // no attr. template
+	hFile = CreateFile(filename.c_str(),							 // file to open
+					   GENERIC_READ,								 // open for reading
+					   FILE_SHARE_READ,								 // share for reading
+					   NULL,										 // default security
+					   OPEN_EXISTING,								 // existing file only
+					   FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OVERLAPPED, // normal file
+					   NULL);										 // no attr. template
 
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
@@ -36,11 +37,11 @@ char* FileMemMap::mapfile(const std::string& filename)
 	// 1) memory map file
 	//HANDLE hFileMap;
 	hFileMap = CreateFileMapping(hFile,
-		NULL,
-		PAGE_READONLY,
-		0,
-		0,
-		NULL);
+								 NULL,
+								 PAGE_READONLY,
+								 0,
+								 0,
+								 NULL);
 
 	if (hFileMap == NULL)
 	{
@@ -48,12 +49,12 @@ char* FileMemMap::mapfile(const std::string& filename)
 		return nullptr;
 	}
 	// 2) create view memory-mapped region
-	//LPVOID 
-	lpMapAddress = MapViewOfFile(hFileMap,	   // handle to  mapping object
-		FILE_MAP_READ, // read/write
-		0,			   // high-order 32 bits of file  offset
-		0,			   // low-order 32 bits of file  offset
-		0);			   // number of bytes to map
+	//LPVOID
+	lpMapAddress = MapViewOfFile(hFileMap,		// handle to  mapping object
+								 FILE_MAP_READ, // read/write
+								 0,				// high-order 32 bits of file  offset
+								 0,				// low-order 32 bits of file  offset
+								 0);			// number of bytes to map
 	if (lpMapAddress == NULL)
 	{
 		_tprintf(TEXT("lpMapAddress is NULL: last error: %d\n"), GetLastError());
@@ -63,7 +64,7 @@ char* FileMemMap::mapfile(const std::string& filename)
 	return reinterpret_cast<char *>(lpMapAddress);
 }
 
-void FileMemMap::release()
+void FileMemMap::release(const void *mmappedData, const size_t fileSize)
 {
 	BOOL bFlag; // a result holder
 	bFlag = UnmapViewOfFile(this->lpMapAddress);
@@ -80,20 +81,21 @@ void FileMemMap::release()
 	}
 }
 
-#else
+#elif __linux__
 
-char* FileMemMap::mapfile(const std::string& filename)
+char *FileMemMap::mapfile(const std::string &filename)
 {
-	fd = open(filename.c_str(), O_RDONLY, 0);
-	mmappedData = mmap(NULL, fileSize, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0);
+	this->fileSize = std::filesystem::file_size(filename);
+	int fd = open(filename.c_str(), O_RDONLY, 0);
+	this->mmappedData = mmap(NULL, fileSize, PROT_READ, MAP_PRIVATE | MAP_POPULATE, fd, 0);
 	// Parse each vertex packet and unpack
-	bytes = &(((char*)mmappedData)[postHeader]);
+	close(fd);
+	return reinterpret_cast<char *>(mmappedData);
 }
 
 void FileMemMap::release()
 {
 	munmap(mmappedData, fileSize);
-	close(fd);
 }
 
 #endif

@@ -4,8 +4,6 @@
 #include <string>
 #include <vector>
 
-class pangolin::OpenGlMatrix;
-
 // save optical flow to *.flo files
 void saveMotionVector(const char *filename, const void *ptr, const int width, const int height, const bool targetDepthEnable = false);
 

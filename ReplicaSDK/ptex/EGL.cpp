@@ -2,7 +2,7 @@
 #include "EGL.h"
 #include "Assert.h"
 
-#ifndef WIN32
+#ifdef __linux__
 
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
@@ -272,9 +272,8 @@ void EGLCtx::PrintInformation() {
   }
 }
 
+#elif _WIN32
 
-#else
-
-
+// windows use OpenGL (Pangolin) rendering.
 
 #endif

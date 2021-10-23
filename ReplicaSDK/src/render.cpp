@@ -2,6 +2,7 @@
 //#include <EGL.h>
 #include <PTexLib.h>
 #include <pangolin/image/image_convert.h>
+#include <EGL.h>
 
 #include "GLCheck.h"
 #include "MirrorRenderer.h"
@@ -30,6 +31,7 @@ int main(int argc, char* argv[]) {
   //EGLCtx egl;
   //egl.PrintInformation();
 
+#ifdef _WIN32
   // Setup OpenGL Display (based on GLUT)
   pangolin::CreateWindowAndBind("ReplicaViewer", width, height);
   if (glewInit() != GLEW_OK) {
@@ -41,6 +43,16 @@ int main(int argc, char* argv[]) {
   if(!checkGLVersion()) {
     return 1;
   }
+#elif __linux__
+    // Setup EGL to off-screen rendering
+  EGLCtx egl;
+  egl.PrintInformation();
+  
+  if(!checkGLVersion()) {
+    return 1;
+  }
+#endif
+
 
   //Don't draw backfaces
   const GLenum frontFace = GL_CCW;

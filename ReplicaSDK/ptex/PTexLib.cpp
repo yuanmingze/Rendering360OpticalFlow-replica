@@ -6,15 +6,15 @@
 #include <pangolin/utils/picojson.h>
 #include <Eigen/Geometry>
 
-#ifndef WIN32
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <experimental/filesystem>
-#else
-#include <iostream>
-#include <filesystem>
-#include <sort_linux.hpp>
+ #include <filesystem>
+
+#ifdef _WIN32
+  #include <iostream>
+  #include <sort_linux.hpp>
+#elif __linux__
+  #include <fcntl.h>
+  #include <sys/mman.h>
+  #include <unistd.h>
 #endif
 
 #include "FileMemMap.h"
@@ -491,11 +491,8 @@ std::vector<MeshData> PTexMesh::SplitMesh(const MeshData& mesh, const float spli
     }
   }
 
-  //// sort faces by code
-  //std::sort(faces.begin(), faces.end(), [](const SortFace& f1, const SortFace& f2) -> bool {
-  //    return (f1.code < f2.code);
-  //    });
-
+  // sort faces by code
+#ifdef _WIN32
   auto sort_face = [](std::vector<SortFace>& sort_face_list)
   {
       const int index_ele_size = 4;
@@ -566,7 +563,12 @@ std::vector<MeshData> PTexMesh::SplitMesh(const MeshData& mesh, const float spli
   //        printf("%d\n", counter);
   //}
   //infile.close();
+#elif __linux__
 
+  std::sort(faces.begin(), faces.end(), [](const SortFace &f1, const SortFace &f2) -> bool
+            { return (f1.code < f2.code); });
+
+#endif
 
   // find face chunk start indices
   std::vector<uint32_t> chunkStart;

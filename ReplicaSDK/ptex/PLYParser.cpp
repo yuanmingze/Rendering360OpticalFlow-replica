@@ -2,14 +2,14 @@
 #include "PLYParser.h"
 #include "Assert.h"
 
-#ifndef WIN32
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <unistd.h>
-#include <experimental/filesystem>
-#else
 #include <filesystem>
+
+#ifdef __linux__
+  #include <fcntl.h>
+  #include <sys/mman.h>
+  #include <unistd.h>
 #endif
+
 #include "FileMemMap.h"
 #include <fstream>
 #include <set>
