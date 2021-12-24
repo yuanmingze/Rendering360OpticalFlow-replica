@@ -96,6 +96,12 @@ endif()
 
 if(UNIX AND NOT APPLE)
     set(LINUX TRUE)
+    message("The platform is Linux.")
+endif()
+
+if(LINUX)
+    set(GLog_DIR "/mnt/sda1/libraries_linux_ubuntu_20_04/glog/glog-0.5.0-bin/lib/cmake/glog/")
+    set(Pangolin_DIR "/mnt/sda1/libraries_linux_ubuntu_20_04/pangolin/Pangolin-0.6-bin/lib/cmake/Pangolin/")
 endif()
 
 find_package(Eigen3 REQUIRED)
