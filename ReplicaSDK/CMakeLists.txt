@@ -10,10 +10,6 @@ set(PTEX_SHADER_DIR "${CMAKE_CURRENT_LIST_DIR}/shaders" CACHE PATH "Where the sh
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -msse2 -msse3 -Wall -std=c++11 -fopenmp -DSHADER_DIR=${PTEX_SHADER_DIR}")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSHADER_DIR=${PTEX_SHADER_DIR}")
 
-#include_directories(${Pangolin_INCLUDE_DIRS})
-#include_directories(${EIGEN3_INCLUDE_DIR})
-include_directories("./include")
-
 
 #######   ReplicaRenderer   #######
 file(GLOB srcs_ptex ptex/*.cpp)
@@ -25,15 +21,14 @@ add_library(ptex STATIC
 )
 
 target_link_libraries(ptex PUBLIC
-                      ${GLEW_LIBRARIES}              
                       ${Pangolin_LIBRARIES}
                       ${SortLinux_LIBRARIES}
                       GLEW::glew
+                      Eigen3::Eigen
 )
 
 target_include_directories(ptex PUBLIC
-            ${GLEW_INCLUDE_DIRS}
-            ${EIGEN3_INCLUDE_DIR}
+        "./include"
             ${PNG_PNG_INCLUDE_DIR}
             ${ZLIB_INCLUDE_DIR}
             ${Pangolin_INCLUDE_DIRS}
@@ -46,7 +41,6 @@ target_include_directories(ptex PUBLIC
 add_executable(ReplicaViewer src/viewer.cpp )
 set_target_properties(ReplicaViewer PROPERTIES VS_DEBUGGER_ENVIRONMENT "${RUNTIMT_ENV_PATH}")
 target_link_libraries(ReplicaViewer PUBLIC
-                      ${Pangolin_LIBRARIES}
                       ptex
 )
 
@@ -54,9 +48,6 @@ target_link_libraries(ReplicaViewer PUBLIC
 add_executable(ReplicaRenderer src/render.cpp)
 set_target_properties(ReplicaRenderer PROPERTIES VS_DEBUGGER_ENVIRONMENT "${RUNTIMT_ENV_PATH}")
 target_link_libraries(ReplicaRenderer PUBLIC
-                      ${Pangolin_LIBRARIES}
-                      gflags
-                      glog::glog
                       ptex
                       ${CMAKE_DL_LIBS}
 )
@@ -65,11 +56,10 @@ target_link_libraries(ReplicaRenderer PUBLIC
 add_executable(ReplicaRendererCubemap src/renderCubemap.cpp)
 set_target_properties(ReplicaRendererCubemap PROPERTIES VS_DEBUGGER_ENVIRONMENT "${RUNTIMT_ENV_PATH}")
 target_link_libraries(ReplicaRendererCubemap PUBLIC
-                      ${Pangolin_LIBRARIES}
-                      gflags
-                      glog::glog
-                      ptex
-                      ${CMAKE_DL_LIBS}
+                    gflags
+                    glog::glog
+                    ptex
+                    ${CMAKE_DL_LIBS}
 )
 set(MODULE_NAME ReplicaRendererCubemap)
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -88,9 +78,8 @@ endif()
 add_executable(ReplicaRendererPanorama src/renderPanorama.cpp)
 set_target_properties(ReplicaRendererPanorama PROPERTIES VS_DEBUGGER_ENVIRONMENT "${RUNTIMT_ENV_PATH}")
 target_link_libraries(ReplicaRendererPanorama PUBLIC
-                      ${Pangolin_LIBRARIES}
-                      gflags
-                      glog::glog
-                      ptex
-                      ${CMAKE_DL_LIBS}
+                    gflags
+                    glog::glog
+                    ptex
+                    ${CMAKE_DL_LIBS}
 )

@@ -64,7 +64,7 @@ char *FileMemMap::mapfile(const std::string &filename)
 	return reinterpret_cast<char *>(lpMapAddress);
 }
 
-void FileMemMap::release(const void *mmappedData, const size_t fileSize)
+void FileMemMap::release()
 {
 	BOOL bFlag; // a result holder
 	bFlag = UnmapViewOfFile(this->lpMapAddress);
