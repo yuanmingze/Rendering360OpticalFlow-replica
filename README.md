@@ -24,7 +24,7 @@ Test on:
   - GLEW: 2.1.0
   - Pangolin: 0.6
   - Eigen: 3.3.7
-  - Glog: 0.4.0
+  - Glog: 0.5.0
   - Gflag: 2.2.2
 
 **linux**:

@@ -47,8 +47,12 @@ int main(int argc, char* argv[]) {
   ASSERT(pangolin::FileExists(meshFile));
   const std::string atlasFolder(data_root + FLAGS_atlasFolder);
   ASSERT(pangolin::FileExists(atlasFolder));
-  const std::string surfaceFile = std::string(data_root + FLAGS_mirrorFile);
-  ASSERT(pangolin::FileExists(surfaceFile));
+  std::string surfaceFile = std::string(data_root + FLAGS_mirrorFile);
+  // ASSERT(pangolin::FileExists(surfaceFile));
+  if(!pangolin::FileExists(surfaceFile)){
+      surfaceFile.clear();
+      LOG(WARNING) << "Do not set the mirror file.";
+  }
 
   const std::string outputDir = std::string(FLAGS_outputDir);
   fs::directory_entry outputDir_dir{ fs::path(outputDir) };
