@@ -20,7 +20,7 @@ Test on:
 
 **Windows**:
   - Windows 10
-  - Visual Stuido 2019
+  - Visual Studio 2019
   - GLEW: 2.1.0
   - Pangolin: 0.6
   - Eigen: 3.3.7
@@ -35,6 +35,8 @@ Test on:
   - Eigen: 3.3.7
   - Glog: 0.5.0
   - Gflag: 2.2.2
+
+Note in windows in the `NVIDIA Control Panel` please select the `Preferred graphics processor` to `High-performance NVIDIA processor`.
 
 ## Coordinate System
 
